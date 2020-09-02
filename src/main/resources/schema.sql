@@ -38,31 +38,33 @@ CREATE TABLE restaurants
 
 CREATE TABLE dishes
 (
-    id          INT DEFAULT nextval('global_seq'),
-    description TEXT(255) NOT NULL,
-    price       BIGINT    NOT NULL,
-    restaurant  INT       NOT NULL,
+    id            INT DEFAULT nextval('global_seq'),
+    description   TEXT(255) NOT NULL,
+    price         BIGINT    NOT NULL,
+    restaurant_id INT       NOT NULL,
     CONSTRAINT DISHES_PK
         PRIMARY KEY (id),
     CONSTRAINT DISHES_RESTAURANTS_ID_FK
-        FOREIGN KEY (restaurant) REFERENCES RESTAURANTS
+        FOREIGN KEY (restaurant_id) REFERENCES RESTAURANTS
             ON DELETE CASCADE
 );
 
-CREATE TABLE votes
+CREATE TABLE VOTES
 (
-    id         BIGINT    DEFAULT nextval('global_seq'),
-    date_time  TIMESTAMP DEFAULT now() NOT NULL,
-    user       INT                     NOT NULL,
-    restaurant INT                     NOT NULL,
+    ID            INT  DEFAULT NEXTVAL('global_seq'),
+    DATE          DATE DEFAULT TODAY        NOT NULL,
+    TIME          TIME DEFAULT CURRENT_TIME NOT NULL,
+    USER_ID       INT                       NOT NULL,
+    RESTAURANT_ID INT                       NOT NULL,
+
     CONSTRAINT VOTES_RESTAURANTS_ID_FK
-        FOREIGN KEY (restaurant) REFERENCES RESTAURANTS
+        FOREIGN KEY (RESTAURANT_ID) REFERENCES RESTAURANTS (ID)
             ON DELETE CASCADE,
     CONSTRAINT VOTES_USERS_ID_FK
-        FOREIGN KEY (user) REFERENCES USERS
-            ON DELETE CASCADE
+        FOREIGN KEY (USER_ID) REFERENCES USERS (ID)
+            ON DELETE CASCADE,
+    CONSTRAINT VOTES_UQ_USER_ID_DATE UNIQUE (USER_ID, DATE)
 );
-
 
 
 
