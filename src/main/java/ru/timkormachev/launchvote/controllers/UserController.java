@@ -9,6 +9,7 @@ import ru.timkormachev.launchvote.repositories.UserRepository;
 import javax.validation.Valid;
 
 import static ru.timkormachev.launchvote.util.SecurityUtil.authUserId;
+import static ru.timkormachev.launchvote.util.ValidationUtil.assureIdConsistent;
 
 @RestController
 @RequestMapping(UserController.REST_URL)
@@ -28,13 +29,14 @@ public class UserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public User update(@RequestBody @Valid User user) {
-        return repository.save(user);
-    }
-
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete() {
-        repository.deleteById(authUserId());
+    public User update(@RequestBody @Valid User newUser) {
+        assureIdConsistent(newUser, authUserId());
+        return repository.findById(authUserId())
+                .map(user -> {
+                    user.setLogin(newUser.getLogin());
+                    user.setPassword(newUser.getPassword());
+                    user.setEmail((newUser.getEmail()));
+                    return repository.save(user);
+                }).orElseThrow();
     }
 }
