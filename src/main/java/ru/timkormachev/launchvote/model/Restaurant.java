@@ -1,5 +1,6 @@
 package ru.timkormachev.launchvote.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -19,7 +20,10 @@ public class Restaurant extends AbstractBaseEntity {
     @Size(min = 1, max = 255)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "restaurant")
+    @OneToMany(fetch = FetchType.LAZY,
+               cascade = CascadeType.ALL,
+               orphanRemoval = true,
+               mappedBy = "restaurant")
+    @JsonManagedReference
     private List<Dish> dishes;
-
 }
