@@ -1,40 +1,58 @@
 package ru.timkormachev.launchvote.controllers;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.timkormachev.launchvote.model.Dish;
 import ru.timkormachev.launchvote.model.Restaurant;
+import ru.timkormachev.launchvote.repositories.DishRepository;
 import ru.timkormachev.launchvote.repositories.RestaurantRepository;
+import ru.timkormachev.launchvote.util.json.View;
 
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
 import static ru.timkormachev.launchvote.controllers.RestaurantsController.REST_URL;
-import static ru.timkormachev.launchvote.util.ValidationUtil.assureIdConsistent;
+import static ru.timkormachev.launchvote.util.ValidationUtil.*;
 
 @RestController
 @RequestMapping(REST_URL)
 public class RestaurantsController {
     static final String REST_URL = "/restaurants";
 
-    private final RestaurantRepository repository;
+    private final RestaurantRepository restaurantRepository;
 
-    public RestaurantsController(RestaurantRepository restaurantRepository) {
-        this.repository = restaurantRepository;
+    private final DishRepository dishRepository;
+
+    public RestaurantsController(RestaurantRepository restaurantRepository, DishRepository dishRepository) {
+        this.restaurantRepository = restaurantRepository;
+        this.dishRepository = dishRepository;
     }
 
     @GetMapping
+    @JsonView(value = {View.Restaurants.class})
     public List<Restaurant> getAll() {
-        return repository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+        return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    @GetMapping("/with")
+    @JsonView(value = {View.Restaurants.WithDishes.class})
+    public List<Restaurant> getAllWithDishes(@RequestParam boolean dishes) {
+        if (dishes) {
+            return restaurantRepository.findRestaurantsWithDishesByOrderByName();
+        }
+        return getAll();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Restaurant> add(@Valid @RequestBody Restaurant restaurant) {
-        Restaurant created = repository.save(restaurant);
+        checkNew(restaurant);
+        Restaurant created = restaurantRepository.save(restaurant);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL + "/{id}")
                 .buildAndExpand(created.getId()).toUri();
@@ -43,19 +61,26 @@ public class RestaurantsController {
 
     @GetMapping("/{id}")
     public Restaurant get(@PathVariable int id) {
-        return repository.findById(id).orElseThrow();
+        return restaurantRepository.findById(id).orElseThrow();
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         assureIdConsistent(restaurant, id);
-        repository.save(restaurant);
+        checkModificationAllowed(id);
+        restaurantRepository.save(restaurant);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
-        repository.deleteById(id);
+        checkModificationAllowed(id);
+        restaurantRepository.deleteById(id);
+    }
+
+    @GetMapping("/{id}/dishes")
+    public List<Dish> getDishes(@PathVariable int id) {
+        return dishRepository.findAllByRestaurantOrderByDescription(restaurantRepository.getOne(id));
     }
 }
