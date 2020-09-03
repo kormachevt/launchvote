@@ -9,10 +9,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "restaurants")
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class Restaurant extends AbstractBaseEntity {
 
     @Column(name = "name", nullable = false)

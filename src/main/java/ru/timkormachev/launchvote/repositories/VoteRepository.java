@@ -1,12 +1,17 @@
 package ru.timkormachev.launchvote.repositories;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.model.Vote;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface VoteRepository extends JpaRepository<Vote, Integer> {
 
-    Vote findByUserAndDate(User user, LocalDate date);
+    Vote getByUserAndDate(User user, LocalDate date);
+
+    @EntityGraph(value = "Vote.restaurant")
+    List<Vote> findVotesByDate(LocalDate date);
 }

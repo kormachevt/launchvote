@@ -10,6 +10,9 @@ import java.time.LocalTime;
 @Data
 @Table(name = "votes")
 @Entity
+@NamedEntityGraph(name = "Vote.restaurant",
+                  attributeNodes = @NamedAttributeNode("restaurant")
+)
 @EqualsAndHashCode(callSuper = true)
 public class Vote extends AbstractBaseEntity {
 
