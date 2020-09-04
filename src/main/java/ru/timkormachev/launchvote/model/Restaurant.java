@@ -1,5 +1,6 @@
 package ru.timkormachev.launchvote.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,6 +27,15 @@ public class Restaurant extends AbstractBaseEntity {
     private String name;
 
     @JsonView(value = {View.Restaurants.WithDishes.class})
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant", orphanRemoval = true)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<Dish> dishes;
+
+    //  https://stackoverflow.com/a/3937867
+    public void addToDishes(List<Dish> dishes) {
+        dishes.forEach(dish -> {
+            dish.setRestaurant(this);
+            this.dishes.add(dish);
+        });
+    }
 }

@@ -1,6 +1,7 @@
 package ru.timkormachev.launchvote.controllers;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -69,6 +70,7 @@ public class RestaurantsController {
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         assureIdConsistent(restaurant, id);
         checkModificationAllowed(id);
+        restaurant.getDishes().forEach(dish -> dish.setRestaurant(restaurant));
         restaurantRepository.save(restaurant);
     }
 
@@ -82,5 +84,16 @@ public class RestaurantsController {
     @GetMapping("/{id}/dishes")
     public List<Dish> getDishes(@PathVariable int id) {
         return dishRepository.findAllByRestaurantOrderByDescription(restaurantRepository.getOne(id));
+    }
+
+    //  https://stackoverflow.com/a/5587892
+    @PutMapping(value = "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void createDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) throws ChangeSetPersister.NotFoundException {
+        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        List<Dish> currentDishes = restaurant.getDishes();
+        currentDishes.clear();
+        restaurant.addToDishes(dishes);
+        restaurantRepository.save(restaurant);
     }
 }

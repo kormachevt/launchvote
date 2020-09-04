@@ -1,7 +1,9 @@
 package ru.timkormachev.launchvote.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.Hibernate;
 import org.springframework.util.Assert;
+import ru.timkormachev.launchvote.util.json.View;
 
 import javax.persistence.*;
 
@@ -18,6 +20,7 @@ public abstract class AbstractBaseEntity implements HasId {
 
 //  See https://hibernate.atlassian.net/browse/HHH-3718 and https://hibernate.atlassian.net/browse/HHH-12034
 //  Proxy initialization when accessing its identifier managed now by JPA_PROXY_COMPLIANCE setting
+    @JsonView(value = {View.Restaurants.class, View.Restaurants.WithDishes.class})
     protected Integer id;
 
     protected AbstractBaseEntity() {

@@ -24,7 +24,7 @@ public class Dish extends AbstractBaseEntity {
     private String description;
 
     @Column(name = "price", nullable = false)
-    @Range(min = 0L, max = 1_000_000L)
+    @Range(max = 1_000_000L)
     @JsonView(value = {View.Restaurants.WithDishes.class})
     private Long price;
 

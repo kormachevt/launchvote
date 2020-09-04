@@ -49,11 +49,11 @@ CREATE TABLE dishes
             ON DELETE CASCADE
 );
 
-CREATE TABLE VOTES
+CREATE TABLE votes
 (
-    ID            INT  DEFAULT NEXTVAL('global_seq'),
-    DATE          DATE DEFAULT TODAY        NOT NULL,
-    TIME          TIME DEFAULT CURRENT_TIME NOT NULL,
+    ID            INT  DEFAULT nextval('global_seq'),
+    DATE          DATE DEFAULT today        NOT NULL,
+    TIME          TIME DEFAULT current_time NOT NULL,
     USER_ID       INT                       NOT NULL,
     RESTAURANT_ID INT                       NOT NULL,
 
