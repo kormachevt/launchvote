@@ -2,8 +2,10 @@ package ru.timkormachev.launchvote.controllers;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.timkormachev.launchvote.dto.Result;
+import ru.timkormachev.launchvote.model.AuthorizedUser;
 import ru.timkormachev.launchvote.model.Restaurant;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.model.Vote;
@@ -20,7 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ru.timkormachev.launchvote.controllers.VotesController.REST_URL;
-import static ru.timkormachev.launchvote.util.SecurityUtil.authUserId;
 import static ru.timkormachev.launchvote.util.VotesUtil.calcPercentage;
 import static ru.timkormachev.launchvote.util.VotesUtil.checkVoteTime;
 
@@ -49,10 +50,10 @@ public class VotesController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerVote(@RequestParam("restaurantId") int restaurantId) {
+    public void registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
         checkVoteTime(stopVoteTime);
         Restaurant restaurant = restaurantRepository.getOne(restaurantId);
-        User user = userRepository.getOne(authUserId());
+        User user = userRepository.getOne(authorizedUser.getId());
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
 
