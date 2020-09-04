@@ -9,10 +9,11 @@ CREATE SEQUENCE global_seq START WITH 100000;
 
 CREATE TABLE users
 (
-    id       INT DEFAULT nextval('global_seq'),
+    id       INT                   DEFAULT nextval('global_seq'),
     login    VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     email    VARCHAR(255) NOT NULL,
+    enabled  BOOLEAN      NOT NULL DEFAULT TRUE,
     CONSTRAINT USERS_PK
         PRIMARY KEY (id)
 );

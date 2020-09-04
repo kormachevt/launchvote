@@ -34,6 +34,9 @@ public class User extends AbstractBaseEntity {
     @Size(max = 100)
     private String email;
 
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
+
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "user_roles",
                      joinColumns = @JoinColumn(name = "user_id"),
