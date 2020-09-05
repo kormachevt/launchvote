@@ -1,4 +1,4 @@
-package ru.timkormachev.launchvote.controllers;
+package ru.timkormachev.launchvote.web;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.timkormachev.launchvote.exception.NotFoundException;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.repositories.UserRepository;
 import ru.timkormachev.launchvote.util.UniqueMailValidator;
@@ -40,7 +41,7 @@ public class UsersController extends AbstractUserController {
 
     @GetMapping("/{id}")
     public User get(@PathVariable int id) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

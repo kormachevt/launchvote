@@ -11,12 +11,13 @@ FROM restaurants;
 ALTER SEQUENCE global_seq RESTART WITH 100000;
 
 INSERT INTO users (login, email, password)
-VALUES ('user', 'user@gmail.com', '{noop}password'),
-       ('admin', 'admin@gmail.com', '{noop}admin');
+VALUES ('User', 'user@gmail.com', '{noop}password'),
+       ('Admin', 'admin@gmail.com', '{noop}admin');
 
 INSERT INTO user_roles (role, user_id)
 VALUES ('USER', 100000),
-       ('ADMIN', 100001);
+       ('ADMIN', 100001),
+       ('USER', 100001);
 
 INSERT INTO RESTAURANTS (name)
 VALUES ('Alfa'),

@@ -1,10 +1,9 @@
-package ru.timkormachev.launchvote.controllers;
+package ru.timkormachev.launchvote.web;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ru.timkormachev.launchvote.dto.Result;
 import ru.timkormachev.launchvote.model.AuthorizedUser;
 import ru.timkormachev.launchvote.model.Restaurant;
 import ru.timkormachev.launchvote.model.User;
@@ -12,6 +11,7 @@ import ru.timkormachev.launchvote.model.Vote;
 import ru.timkormachev.launchvote.repositories.RestaurantRepository;
 import ru.timkormachev.launchvote.repositories.UserRepository;
 import ru.timkormachev.launchvote.repositories.VoteRepository;
+import ru.timkormachev.launchvote.to.ResultTo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static ru.timkormachev.launchvote.controllers.VotesController.REST_URL;
 import static ru.timkormachev.launchvote.util.VotesUtil.calcPercentage;
 import static ru.timkormachev.launchvote.util.VotesUtil.checkVoteTime;
+import static ru.timkormachev.launchvote.web.VotesController.REST_URL;
 
 @RestController
 @RequestMapping(REST_URL)
@@ -34,8 +34,8 @@ public class VotesController {
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
     private final LocalTime stopVoteTime;
-    private static final Comparator<Result> BY_PERCENT_THEN_NAME = Comparator.comparing(Result::getPercentage).reversed()
-            .thenComparing(Result::getRestaurant);
+    private static final Comparator<ResultTo> BY_PERCENT_THEN_NAME = Comparator.comparing(ResultTo::getPercentage).reversed()
+            .thenComparing(ResultTo::getRestaurant);
 
 
     public VotesController(VoteRepository repository,
@@ -75,7 +75,7 @@ public class VotesController {
     }
 
     @GetMapping
-    public List<Result> getResults() {
+    public List<ResultTo> getResults() {
         List<Vote> votes = voteRepository.findVotesByDate(LocalDate.now());
         Map<Restaurant, Long> votesMap = votes.stream()
                 .collect(Collectors.groupingBy(Vote::getRestaurant, Collectors.counting()));
@@ -83,8 +83,8 @@ public class VotesController {
         int totalVotes = votes.size();
         List<Restaurant> restaurants = restaurantRepository.findAll();
         return restaurants.stream()
-                .map(r -> new Result(r.getName(), calcPercentage(Optional.ofNullable(votesMap.get(r)).orElse(0L),
-                                                                 totalVotes)))
+                .map(r -> new ResultTo(r.getName(), calcPercentage(Optional.ofNullable(votesMap.get(r)).orElse(0L),
+                                                                   totalVotes)))
                 .sorted(BY_PERCENT_THEN_NAME)
                 .collect(Collectors.toList());
     }

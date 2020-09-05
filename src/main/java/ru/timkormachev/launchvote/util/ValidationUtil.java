@@ -33,7 +33,7 @@ public class ValidationUtil {
     }
 
     public static void checkModificationAllowed(int id) {
-        if (id < AbstractBaseEntity.START_SEQ + 2) {
+        if (id < AbstractBaseEntity.START_SEQ) {
             throw new ModificationRestrictionException();
         }
     }

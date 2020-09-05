@@ -3,6 +3,7 @@ package ru.timkormachev.launchvote.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
@@ -15,8 +16,26 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 @Data
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 public class User extends AbstractBaseEntity {
+
+    public User(Integer id) {
+        super(id);
+    }
+
+    public User() {
+    }
+
+    public User(User u) {
+        this.id = u.getId();
+        this.login = u.getLogin();
+        this.password = u.getPassword();
+        this.email = u.getEmail();
+        this.enabled = u.isEnabled();
+        this.roles = u.getRoles();
+    }
+
     @Column(name = "login", nullable = false)
     @NotBlank
     @Size(min = 3, max = 120)

@@ -1,4 +1,4 @@
-package ru.timkormachev.launchvote.controllers;
+package ru.timkormachev.launchvote.web;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import ru.timkormachev.launchvote.exception.NotFoundException;
 import ru.timkormachev.launchvote.model.Dish;
 import ru.timkormachev.launchvote.model.Restaurant;
 import ru.timkormachev.launchvote.repositories.DishRepository;
@@ -18,8 +19,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
-import static ru.timkormachev.launchvote.controllers.RestaurantsController.REST_URL;
 import static ru.timkormachev.launchvote.util.ValidationUtil.*;
+import static ru.timkormachev.launchvote.web.RestaurantsController.REST_URL;
 
 @RestController
 @RequestMapping(REST_URL)
@@ -62,7 +63,7 @@ public class RestaurantsController {
 
     @GetMapping("/{id}")
     public Restaurant get(@PathVariable int id) {
-        return restaurantRepository.findById(id).orElseThrow();
+        return restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -90,7 +91,7 @@ public class RestaurantsController {
     @PutMapping(value = "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void createDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) throws ChangeSetPersister.NotFoundException {
-        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
         List<Dish> currentDishes = restaurant.getDishes();
         currentDishes.clear();
         restaurant.addToDishes(dishes);
