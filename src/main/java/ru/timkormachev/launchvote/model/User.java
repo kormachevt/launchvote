@@ -18,7 +18,7 @@ import java.util.Set;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
-public class User extends AbstractBaseEntity {
+public class User extends AbstractBaseEntity implements HasIdAndEmail {
 
     public User(Integer id) {
         super(id);

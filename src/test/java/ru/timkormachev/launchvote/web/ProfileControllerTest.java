@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.timkormachev.launchvote.AbstractControllerTest;
-import ru.timkormachev.launchvote.exception.NotFoundException;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.repositories.UserRepository;
 import ru.timkormachev.launchvote.to.UserTo;
@@ -48,6 +48,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @DirtiesContext
     void register() throws Exception {
         UserTo newTo = new UserTo()
                 .setLogin("newLogin")
@@ -67,6 +68,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @DirtiesContext
     void update() throws Exception {
         UserTo updatedTo = new UserTo()
                 .setLogin("newLogin")
@@ -79,7 +81,7 @@ class ProfileControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
 
 
-        User user = repository.findById(USER_ID).orElseThrow(() -> new NotFoundException("id=" + USER_ID));
+        User user = repository.findOrThrowById(USER_ID);
         USER_MATCHER.assertMatch(user, updateFromTo(new User(USER), updatedTo, encoder));
     }
 

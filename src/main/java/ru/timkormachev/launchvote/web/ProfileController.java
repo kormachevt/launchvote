@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.timkormachev.launchvote.exception.NotFoundException;
 import ru.timkormachev.launchvote.model.AuthorizedUser;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.repositories.UserRepository;
@@ -39,7 +38,7 @@ public class ProfileController extends AbstractUserController {
 
     @GetMapping
     public User get(@AuthenticationPrincipal AuthorizedUser authorizedUser) {
-        return repository.findById(authorizedUser.getId()).orElseThrow(() -> new NotFoundException("id=" + authorizedUser.getId()));
+        return repository.findOrThrowById(authorizedUser.getId());
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)

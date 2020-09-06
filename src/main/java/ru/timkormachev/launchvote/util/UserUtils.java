@@ -27,17 +27,14 @@ public class UserUtils {
         return user;
     }
 
-    private static void encodePassword(User user, PasswordEncoder passwordEncoder) {
-        String password = user.getPassword();
-        user.setPassword(StringUtils.hasText(password) ? passwordEncoder.encode(password) : password);
+    public static User prepareToSave(User user, PasswordEncoder passwordEncoder) {
+        encodePassword(user, passwordEncoder);
+        user.setEmail(user.getEmail().toLowerCase());
+        return user;
     }
 
-    public static UserTo asTo(User user) {
-        UserTo userTo = new UserTo();
-        userTo.setLogin(user.getLogin());
-        userTo.setPassword(user.getPassword());
-        userTo.setEmail(user.getEmail());
-        userTo.setId(user.getId());
-        return userTo;
+    public static void encodePassword(User user, PasswordEncoder passwordEncoder) {
+        String password = user.getPassword();
+        user.setPassword(StringUtils.hasText(password) ? passwordEncoder.encode(password) : password);
     }
 }
