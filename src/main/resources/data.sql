@@ -24,10 +24,10 @@ VALUES ('Alfa'),
        ('Omega');
 
 INSERT INTO DISHES (description, price, restaurant_id)
-VALUES ('Alfa_1', 200, 100002),
-       ('Alfa_2', 200, 100002),
-       ('Omega_1', 300, 100003),
-       ('Omega_2', 400, 100003);
+VALUES ('Alfa_1', 201, 100002),
+       ('Alfa_2', 202, 100002),
+       ('Omega_1', 301, 100003),
+       ('Omega_2', 302, 100003);
 
 INSERT INTO VOTES (DATE, TIME, USER_ID, RESTAURANT_ID)
 VALUES ('2020-09-02', '00:00:00', 100000, 100002),

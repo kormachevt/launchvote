@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.timkormachev.launchvote.exception.NotFoundException;
@@ -22,6 +23,7 @@ import java.util.List;
 import static ru.timkormachev.launchvote.util.ValidationUtil.*;
 import static ru.timkormachev.launchvote.web.RestaurantsController.REST_URL;
 
+@Validated //https://stackoverflow.com/a/32054659, https://stackoverflow.com/a/54394177
 @RestController
 @RequestMapping(REST_URL)
 public class RestaurantsController {
@@ -42,13 +44,10 @@ public class RestaurantsController {
         return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
-    @GetMapping("/with")
+    @GetMapping("/with-dishes")
     @JsonView(value = {View.Restaurants.WithDishes.class})
-    public List<Restaurant> getAllWithDishes(@RequestParam boolean dishes) {
-        if (dishes) {
-            return restaurantRepository.findRestaurantsWithDishesByOrderByName();
-        }
-        return getAll();
+    public List<Restaurant> getAllWithDishes() {
+        return restaurantRepository.findRestaurantsWithDishesByOrderByName();
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

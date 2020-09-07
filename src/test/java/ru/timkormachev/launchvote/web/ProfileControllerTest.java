@@ -17,9 +17,9 @@ import ru.timkormachev.launchvote.web.json.JsonUtil;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.timkormachev.launchvote.TestData.*;
 import static ru.timkormachev.launchvote.TestUtil.readFromJson;
 import static ru.timkormachev.launchvote.TestUtil.userHttpBasic;
+import static ru.timkormachev.launchvote.UserTestData.*;
 import static ru.timkormachev.launchvote.exception.ErrorType.VALIDATION_ERROR;
 import static ru.timkormachev.launchvote.exception.ExceptionInfoHandler.EXCEPTION_DUPLICATE_EMAIL;
 import static ru.timkormachev.launchvote.util.UserUtils.createNewFromTo;
@@ -36,6 +36,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     void get() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)
                         .with(userHttpBasic(USER)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(USER));

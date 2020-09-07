@@ -2,8 +2,10 @@ package ru.timkormachev.launchvote.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.Range;
 import ru.timkormachev.launchvote.util.json.View;
 
@@ -13,9 +15,25 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "dishes")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
+@Accessors(chain = true)
 public class Dish extends AbstractBaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "restaurant_id")
+    @JsonIgnore
+    @ToString.Exclude
+    private Restaurant restaurant;
+
+    public Dish(Integer id) {
+        super(id);
+    }
+
+    public Dish() {
+    }
+
 
     @Column(name = "description", nullable = false)
     @NotBlank
@@ -28,8 +46,9 @@ public class Dish extends AbstractBaseEntity {
     @JsonView(value = {View.Restaurants.WithDishes.class})
     private Long price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "restaurant_id")
-    @JsonIgnore
-    private Restaurant restaurant;
+    public Dish(Dish dish) {
+        this.description = dish.getDescription();
+        this.price = dish.getPrice();
+        this.restaurant = dish.getRestaurant();
+    }
 }

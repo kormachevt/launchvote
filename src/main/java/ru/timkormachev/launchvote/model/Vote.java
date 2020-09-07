@@ -1,16 +1,20 @@
 package ru.timkormachev.launchvote.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Data
 @Table(name = "votes")
 @Entity
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@ToString
+@Accessors(chain = true)
 public class Vote extends AbstractBaseEntity {
 
     @Column(name = "date")

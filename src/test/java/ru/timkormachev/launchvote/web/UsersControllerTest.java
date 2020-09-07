@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static ru.timkormachev.launchvote.TestData.*;
 import static ru.timkormachev.launchvote.TestUtil.readFromJson;
 import static ru.timkormachev.launchvote.TestUtil.userHttpBasic;
+import static ru.timkormachev.launchvote.UserTestData.*;
 import static ru.timkormachev.launchvote.exception.ErrorType.VALIDATION_ERROR;
 import static ru.timkormachev.launchvote.exception.ExceptionInfoHandler.EXCEPTION_DUPLICATE_EMAIL;
 import static ru.timkormachev.launchvote.web.json.JsonUtil.writeValue;
@@ -56,6 +56,7 @@ class UsersControllerTest extends AbstractControllerTest {
     void getByEmail() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL + "by?email=" + ADMIN.getEmail())
                         .with(userHttpBasic(ADMIN)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(ADMIN));
@@ -83,6 +84,7 @@ class UsersControllerTest extends AbstractControllerTest {
     @Test
     void getUnAuth() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL))
+                .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
 
@@ -90,6 +92,7 @@ class UsersControllerTest extends AbstractControllerTest {
     void getForbidden() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)
                         .with(userHttpBasic(USER)))
+                .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
@@ -102,6 +105,7 @@ class UsersControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(userHttpBasic(ADMIN))
                         .content(jsonWithPassword(updated, "newPass")))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
         USER_MATCHER.assertMatch(repository.findOrThrowById(USER_ID), getUpdated());
@@ -116,6 +120,7 @@ class UsersControllerTest extends AbstractControllerTest {
                                                .contentType(MediaType.APPLICATION_JSON)
                                                .with(userHttpBasic(ADMIN))
                                                .content(jsonWithPassword(newUser, "newPass")))
+                .andDo(print())
                 .andExpect(status().isCreated());
 
         User created = readFromJson(action, User.class);
@@ -130,6 +135,7 @@ class UsersControllerTest extends AbstractControllerTest {
     void getAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL)
                         .with(userHttpBasic(ADMIN)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(USER_MATCHER.contentJson(ADMIN, USER));
@@ -196,6 +202,7 @@ class UsersControllerTest extends AbstractControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(userHttpBasic(ADMIN))
                         .content(jsonWithPassword(expected, "newPass")))
+                .andDo(print())
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(errorType(VALIDATION_ERROR))
                 .andExpect(detailMessage(EXCEPTION_DUPLICATE_EMAIL));

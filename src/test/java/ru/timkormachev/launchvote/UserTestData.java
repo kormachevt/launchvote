@@ -8,7 +8,7 @@ import java.util.Set;
 import static ru.timkormachev.launchvote.model.AbstractBaseEntity.START_SEQ;
 import static ru.timkormachev.launchvote.web.json.JsonUtil.writeAdditionProps;
 
-public class TestData {
+public class UserTestData {
     public static final int USER_ID = START_SEQ;
     public static final int ADMIN_ID = START_SEQ + 1;
     public static final int NOT_FOUND_ID = 10;

@@ -35,6 +35,12 @@ public class TestMatcher<T> {
                                (a, e) -> assertThat(a).usingElementComparatorIgnoringFields(fieldsToIgnore).isEqualTo(e));
     }
 
+    public static <T> TestMatcher<T> usingFieldsWithIgnoringAssertionsRecursive(Class<T> clazz, String... fieldsToIgnore) {
+        return usingAssertions(clazz,
+                               (a, e) -> assertThat(a).usingRecursiveComparison().ignoringFields(fieldsToIgnore).ignoringAllOverriddenEquals().isEqualTo(e),
+                               (a, e) -> assertThat(a).usingRecursiveComparison().ignoringFields(fieldsToIgnore).ignoringAllOverriddenEquals().isEqualTo(e));
+    }
+
     public void assertMatch(T actual, T expected) {
         assertion.accept(actual, expected);
     }

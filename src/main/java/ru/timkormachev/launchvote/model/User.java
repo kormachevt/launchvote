@@ -1,8 +1,9 @@
 package ru.timkormachev.launchvote.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.BatchSize;
 
@@ -15,9 +16,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
+@ToString
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = true)
 public class User extends AbstractBaseEntity implements HasIdAndEmail {
 
     public User(Integer id) {

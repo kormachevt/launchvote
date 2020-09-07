@@ -2,8 +2,10 @@ package ru.timkormachev.launchvote.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 import ru.timkormachev.launchvote.util.json.View;
 
 import javax.persistence.*;
@@ -13,12 +15,28 @@ import java.util.List;
 
 @Entity
 @Table(name = "restaurants")
-@Data
-@EqualsAndHashCode(callSuper = true)
 @NamedEntityGraph(name = "Restaurant.dishes",
                   attributeNodes = @NamedAttributeNode("dishes")
 )
+@Getter
+@Setter
+@ToString
+@Accessors(chain = true)
+
 public class Restaurant extends AbstractBaseEntity {
+
+    @JsonView(value = {View.Restaurants.WithDishes.class})
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant", orphanRemoval = true)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @OrderBy("description ASC")
+    private List<Dish> dishes;
+
+    public Restaurant(Integer id) {
+        super(id);
+    }
+
+    public Restaurant() {
+    }
 
     @Column(name = "name", nullable = false)
     @NotBlank
@@ -26,10 +44,10 @@ public class Restaurant extends AbstractBaseEntity {
     @JsonView(value = {View.Restaurants.class})
     private String name;
 
-    @JsonView(value = {View.Restaurants.WithDishes.class})
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant", orphanRemoval = true)
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<Dish> dishes;
+    public Restaurant(Restaurant restaurant) {
+        this.name = restaurant.getName();
+        this.dishes = restaurant.getDishes();
+    }
 
     //  https://stackoverflow.com/a/3937867
     public void addToDishes(List<Dish> dishes) {
