@@ -1,7 +1,7 @@
 package ru.timkormachev.launchvote.util;
 
 
-import ru.timkormachev.launchvote.exception.IllegalRequestDataException;
+import ru.timkormachev.launchvote.exception.InvalidVotingTimeException;
 
 import java.time.LocalTime;
 
@@ -10,9 +10,9 @@ public class VotesUtil {
         return (int) Math.round(thisVotes * 100.0 / totalVotes);
     }
 
-    public static void checkVoteTime(LocalTime stopVoteTime) {
-        if (LocalTime.now().isAfter(stopVoteTime)) {
-            throw new IllegalRequestDataException("Voting time is over");
+    public static void checkVoteTime(LocalTime stopVoteTime, LocalTime currentTime) {
+        if (currentTime.isAfter(stopVoteTime)) {
+            throw new InvalidVotingTimeException();
         }
     }
 }

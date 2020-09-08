@@ -1,6 +1,7 @@
 package ru.timkormachev.launchvote.to;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 
@@ -8,7 +9,16 @@ import javax.validation.constraints.NotBlank;
 public class ResultTo {
 
     @NotBlank
-    private final String restaurant;
+    private String restaurant;
+    @Range(max = 100)
+    private Integer percentage;
 
-    private final int percentage;
+    public ResultTo() {
+
+    }
+
+    public ResultTo(String restaurant, Integer percentage) {
+        this.restaurant = restaurant;
+        this.percentage = percentage;
+    }
 }

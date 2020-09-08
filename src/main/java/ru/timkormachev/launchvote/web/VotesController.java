@@ -1,5 +1,6 @@
 package ru.timkormachev.launchvote.web;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,6 +14,7 @@ import ru.timkormachev.launchvote.repositories.UserRepository;
 import ru.timkormachev.launchvote.repositories.VoteRepository;
 import ru.timkormachev.launchvote.to.ResultTo;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
@@ -37,41 +39,36 @@ public class VotesController {
     private static final Comparator<ResultTo> BY_PERCENT_THEN_NAME = Comparator.comparing(ResultTo::getPercentage).reversed()
             .thenComparing(ResultTo::getRestaurant);
 
+    @Autowired
+    private final Clock clock;
+
 
     public VotesController(VoteRepository repository,
                            RestaurantRepository restaurantRepository,
                            UserRepository userRepository,
-                           @Value("${app.stopVoteTime}") String stopVoteTimeProperty) {
+                           @Value("${app.stopVoteTime}") String stopVoteTimeProperty, Clock clock) {
         this.voteRepository = repository;
         this.restaurantRepository = restaurantRepository;
         this.userRepository = userRepository;
         this.stopVoteTime = LocalTime.parse(stopVoteTimeProperty);
+        this.clock = clock;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
-        checkVoteTime(stopVoteTime);
+        LocalTime now = LocalTime.now(clock);
+        checkVoteTime(stopVoteTime, now);
         Restaurant restaurant = restaurantRepository.getOne(restaurantId);
         User user = userRepository.getOne(authorizedUser.getId());
         LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
-
-//      https://stackoverflow.com/questions/33873260/using-jpa-hibernate-and-entity-update-column-on-unique-contraint-violation
         Vote oldVote = voteRepository.getByUserAndDate(user, date);
-        if (oldVote == null) {
-            Vote vote = new Vote();
-            vote.setUser(user);
-            vote.setRestaurant(restaurant);
-            vote.setDate(date);
-            vote.setTime(time);
-            voteRepository.save(vote);
-        } else {
-            oldVote.setRestaurant(restaurant);
-            oldVote.setDate(date);
-            oldVote.setTime(time);
-            voteRepository.save(oldVote);
-        }
+        Vote vote = oldVote == null ? new Vote() : oldVote;
+        vote.setUser(user);
+        vote.setRestaurant(restaurant);
+        vote.setDate(date);
+        vote.setTime(now);
+        voteRepository.save(vote);
     }
 
     @GetMapping

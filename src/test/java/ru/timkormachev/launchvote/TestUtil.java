@@ -11,6 +11,7 @@ import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.web.json.JsonUtil;
 
 import java.io.UnsupportedEncodingException;
+import java.time.*;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -60,5 +61,9 @@ public class TestUtil {
 
     public static long generateRandomLong(int max) {
         return ThreadLocalRandom.current().nextLong(max);
+    }
+
+    public static Clock toClock(LocalTime time, LocalDate date) {
+        return Clock.fixed(date.atTime(time).toInstant(OffsetDateTime.now().getOffset()), ZoneId.systemDefault());
     }
 }
