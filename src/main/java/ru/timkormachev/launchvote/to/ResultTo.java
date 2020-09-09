@@ -14,7 +14,6 @@ public class ResultTo {
     private Integer percentage;
 
     public ResultTo() {
-
     }
 
     public ResultTo(String restaurant, Integer percentage) {

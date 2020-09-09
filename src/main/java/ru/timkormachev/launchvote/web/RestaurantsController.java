@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -98,7 +97,7 @@ public class RestaurantsController {
     @PutMapping(value = "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
-    public void createDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) throws ChangeSetPersister.NotFoundException {
+    public void updateDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) {
         Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
         List<Dish> currentDishes = restaurant.getDishes();
         currentDishes.clear();

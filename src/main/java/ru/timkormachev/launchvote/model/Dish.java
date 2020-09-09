@@ -45,10 +45,4 @@ public class Dish extends AbstractBaseEntity {
     @Range(max = 1_000_000L)
     @JsonView(value = {View.Restaurants.WithDishes.class})
     private Long price;
-
-    public Dish(Dish dish) {
-        this.description = dish.getDescription();
-        this.price = dish.getPrice();
-        this.restaurant = dish.getRestaurant();
-    }
 }
