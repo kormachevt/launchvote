@@ -1,6 +1,9 @@
 package ru.timkormachev.launchvote.web;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,8 @@ import static ru.timkormachev.launchvote.web.RestaurantsController.REST_URL;
 public class RestaurantsController {
     static final String REST_URL = "/restaurants";
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     private final RestaurantRepository restaurantRepository;
 
     private final DishRepository dishRepository;
@@ -51,6 +56,7 @@ public class RestaurantsController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public ResponseEntity<Restaurant> add(@Valid @RequestBody Restaurant restaurant) {
         checkNew(restaurant);
         Restaurant created = restaurantRepository.save(restaurant);
@@ -67,6 +73,7 @@ public class RestaurantsController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         assureIdConsistent(restaurant, id);
         checkModificationAllowed(id);
@@ -76,6 +83,7 @@ public class RestaurantsController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void delete(@PathVariable int id) {
         checkModificationAllowed(id);
         restaurantRepository.deleteById(id);
@@ -89,6 +97,7 @@ public class RestaurantsController {
     //  https://stackoverflow.com/a/5587892
     @PutMapping(value = "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void createDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) throws ChangeSetPersister.NotFoundException {
         Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
         List<Dish> currentDishes = restaurant.getDishes();

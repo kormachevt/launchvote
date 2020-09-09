@@ -1,6 +1,5 @@
 package ru.timkormachev.launchvote.web;
 
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,11 +37,13 @@ public class ProfileController extends AbstractUserController {
 
     @GetMapping
     public User get(@AuthenticationPrincipal AuthorizedUser authorizedUser) {
+        log.info("get user with id={}", authorizedUser.getId());
         return repository.findOrThrowById(authorizedUser.getId());
     }
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> register(@RequestBody @Valid UserTo userTo) {
+        log.info("create new user with userTo {}", userTo);
         User user = createNewFromTo(userTo, encoder);
         User created = repository.save(user);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -53,7 +54,8 @@ public class ProfileController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public User update(@Valid @RequestBody UserTo userTo, @AuthenticationPrincipal AuthorizedUser authorizedUser) throws BindException, ChangeSetPersister.NotFoundException {
+    public User update(@Valid @RequestBody UserTo userTo, @AuthenticationPrincipal AuthorizedUser authorizedUser) throws BindException {
+        log.info("update user {} with userTo {}", authorizedUser.getId(), userTo);
         int authUserId = authorizedUser.getId();
         checkAndValidateForUpdate(userTo, authUserId);
         User user = repository.getOne(authUserId);

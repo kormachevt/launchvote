@@ -36,21 +36,25 @@ public class UsersController extends AbstractUserController {
 
     @GetMapping
     public List<User> getAll() {
+        log.info("get all users");
         return repository.findAll(Sort.by(Sort.Direction.ASC, "login", "email"));
     }
 
     @GetMapping("/{id}")
     public User get(@PathVariable int id) {
+        log.info("get user with id {}", id);
         return repository.findOrThrowById(id);
     }
 
     @GetMapping("/by")
     public User getByMail(@RequestParam String email) {
+        log.info("get user by email {}", email);
         return repository.getByEmail(email);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> createWithLocation(@Valid @RequestBody User user) {
+        log.info("create new user {}", user);
         checkNew(user);
         prepareToSave(user, encoder);
         User created = repository.save(user);
@@ -63,6 +67,7 @@ public class UsersController extends AbstractUserController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void update(@RequestBody User newUser, @PathVariable int id) throws BindException {
+        log.info("update user with id {} to user {}", id, newUser);
         checkAndValidateForUpdate(newUser, id);
         assureIdConsistent(newUser, id);
         prepareToSave(newUser, encoder);
@@ -72,6 +77,7 @@ public class UsersController extends AbstractUserController {
     @PatchMapping("/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void enable(@PathVariable int id, @RequestParam boolean enabled) {
+        log.info("turn enabled={} for user with id {}", enabled, id);
         checkModificationAllowed(id);
         User user = repository.getOne(id);
         user.setEnabled(enabled);
@@ -81,6 +87,7 @@ public class UsersController extends AbstractUserController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
+        log.info("delete user with id {}", id);
         checkModificationAllowed(id);
         repository.deleteById(id);
     }

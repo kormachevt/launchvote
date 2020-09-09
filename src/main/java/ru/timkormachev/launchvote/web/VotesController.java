@@ -1,5 +1,7 @@
 package ru.timkormachev.launchvote.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,7 @@ import static ru.timkormachev.launchvote.web.VotesController.REST_URL;
 @RequestMapping(REST_URL)
 public class VotesController {
     static final String REST_URL = "/votes";
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final VoteRepository voteRepository;
     private final RestaurantRepository restaurantRepository;
@@ -57,6 +60,7 @@ public class VotesController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
+        log.info("user with id {} votes for restaurant with id {}", authorizedUser.getId(), restaurantId);
         LocalTime now = LocalTime.now(clock);
         checkVoteTime(stopVoteTime, now);
         Restaurant restaurant = restaurantRepository.getOne(restaurantId);
@@ -73,6 +77,7 @@ public class VotesController {
 
     @GetMapping
     public List<ResultTo> getResults() {
+        log.info("get voting results");
         List<Vote> votes = voteRepository.findVotesByDate(LocalDate.now());
         Map<Restaurant, Long> votesMap = votes.stream()
                 .collect(Collectors.groupingBy(Vote::getRestaurant, Collectors.counting()));
