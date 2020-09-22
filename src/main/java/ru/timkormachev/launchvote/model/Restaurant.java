@@ -14,9 +14,9 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
-@Table(name = "restaurants")
+@Table(name = "restaurant")
 @NamedEntityGraph(name = "Restaurant.dishes",
-        attributeNodes = @NamedAttributeNode("dishes")
+                  attributeNodes = @NamedAttributeNode("dishes")
 )
 @Getter
 @Setter

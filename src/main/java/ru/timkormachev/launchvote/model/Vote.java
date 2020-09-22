@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Table(name = "votes")
+@Table(name = "vote")
 @Entity
 @Getter
 @Setter
@@ -17,10 +17,10 @@ import java.time.LocalTime;
 @Accessors(chain = true)
 public class Vote extends AbstractBaseEntity {
 
-    @Column(name = "date")
+    @Column(name = "vote_date")
     LocalDate date;
 
-    @Column(name = "time")
+    @Column(name = "vote_time")
     LocalTime time;
 
     @ManyToOne(fetch = FetchType.LAZY)

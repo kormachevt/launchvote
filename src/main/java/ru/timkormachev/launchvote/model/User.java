@@ -59,7 +59,7 @@ public class User extends AbstractBaseEntity implements HasIdAndEmail {
     private boolean enabled = true;
 
     @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "user_roles",
+    @CollectionTable(name = "user_role",
                      joinColumns = @JoinColumn(name = "user_id"),
                      uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "role"},
                                                             name = "user_roles_unique_idx")})

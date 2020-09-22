@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS votes;
-DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS vote;
+DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS dishes;
-DROP TABLE IF EXISTS restaurants;
+DROP TABLE IF EXISTS dish;
+DROP TABLE IF EXISTS restaurant;
 DROP SEQUENCE IF EXISTS global_seq;
 
 CREATE SEQUENCE global_seq START WITH 100000;
@@ -14,57 +14,58 @@ CREATE TABLE users
     password VARCHAR(255) NOT NULL,
     email    VARCHAR(255) NOT NULL,
     enabled  BOOLEAN      NOT NULL DEFAULT TRUE,
-    CONSTRAINT USERS_PK
+    CONSTRAINT users_pk
         PRIMARY KEY (id)
 );
 
-CREATE UNIQUE INDEX USERS_EMAIL_UINDEX
+CREATE UNIQUE INDEX users_email_uindex
     ON users (email);
 
-CREATE TABLE user_roles
+CREATE TABLE user_role
 (
     user_id INTEGER NOT NULL,
     role    VARCHAR(255),
-    CONSTRAINT user_roles_idx UNIQUE (user_id, role),
+    CONSTRAINT user_role_idx UNIQUE (user_id, role),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
-CREATE TABLE restaurants
+CREATE TABLE restaurant
 (
     id   INT DEFAULT nextval('global_seq'),
-    name TEXT(255) NOT NULL,
-    CONSTRAINT RESTAURANTS_PK
-        PRIMARY KEY (id)
+    name VARCHAR(255) NOT NULL,
+    CONSTRAINT restaurant_pk
+        PRIMARY KEY (id),
+    CONSTRAINT restaurant_uq_name UNIQUE (name)
 );
 
-CREATE TABLE dishes
+CREATE TABLE dish
 (
     id            INT DEFAULT nextval('global_seq'),
     description   TEXT(255) NOT NULL,
     price         BIGINT    NOT NULL,
     restaurant_id INT       NOT NULL,
-    CONSTRAINT DISHES_PK
+    CONSTRAINT dish_pk
         PRIMARY KEY (id),
-    CONSTRAINT DISHES_RESTAURANTS_ID_FK
-        FOREIGN KEY (restaurant_id) REFERENCES RESTAURANTS
+    CONSTRAINT dish_restaurant_id_fk
+        FOREIGN KEY (restaurant_id) REFERENCES restaurant
             ON DELETE CASCADE
 );
 
-CREATE TABLE votes
+CREATE TABLE vote
 (
-    ID            INT  DEFAULT nextval('global_seq'),
-    DATE          DATE DEFAULT today        NOT NULL,
-    TIME          TIME DEFAULT current_time NOT NULL,
-    USER_ID       INT                       NOT NULL,
-    RESTAURANT_ID INT                       NOT NULL,
+    id            INT  DEFAULT nextval('global_seq'),
+    vote_date     DATE DEFAULT today        NOT NULL,
+    vote_time     TIME DEFAULT current_time NOT NULL,
+    user_id       INT                       NOT NULL,
+    restaurant_id INT                       NOT NULL,
 
-    CONSTRAINT VOTES_RESTAURANTS_ID_FK
-        FOREIGN KEY (RESTAURANT_ID) REFERENCES RESTAURANTS (ID)
+    CONSTRAINT vote_restaurant_id_fk
+        FOREIGN KEY (restaurant_id) REFERENCES restaurant (id)
             ON DELETE CASCADE,
-    CONSTRAINT VOTES_USERS_ID_FK
-        FOREIGN KEY (USER_ID) REFERENCES USERS (ID)
+    CONSTRAINT vote_users_id_fk
+        FOREIGN KEY (user_id) REFERENCES users (id)
             ON DELETE CASCADE,
-    CONSTRAINT VOTES_UQ_USER_ID_DATE UNIQUE (USER_ID, DATE)
+    CONSTRAINT vote_uq_user_id_date UNIQUE (vote_date, user_id)
 );
 
 
