@@ -20,6 +20,7 @@ import ru.timkormachev.launchvote.util.json.View;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 
 import static ru.timkormachev.launchvote.util.ValidationUtil.*;
@@ -76,7 +77,13 @@ public class RestaurantsController {
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         assureIdConsistent(restaurant, id);
         checkModificationAllowed(id);
-        restaurant.getDishes().forEach(dish -> dish.setRestaurant(restaurant));
+        List<Dish> dishes = restaurant.getDishes();
+//        https://stackoverflow.com/a/1454871
+        if (dishes != null) {
+            dishes.forEach(dish -> dish.setRestaurant(restaurant));
+        } else {
+            restaurant.setDishes(Collections.emptyList());
+        }
         restaurantRepository.save(restaurant);
     }
 

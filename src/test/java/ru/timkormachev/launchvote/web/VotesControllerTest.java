@@ -92,6 +92,6 @@ class VotesControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESULTS_MATCHER.contentJson(RESULT_1, RESULT_2));
+                .andExpect(RESULTS_MATCHER.contentJson(RESULT_1, RESULT_2, RESULT_3));
     }
 }

@@ -47,7 +47,7 @@ class RestaurantsControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANT_MATCHER.contentJson(ALFA, OMEGA));
+                .andExpect(RESTAURANT_MATCHER.contentJson(ALFA, BETA, OMEGA));
     }
 
     @Test
@@ -57,7 +57,7 @@ class RestaurantsControllerTest extends AbstractControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(RESTAURANTS_WITH_DISHES_MATCHER.contentJson(ALFA, OMEGA));
+                .andExpect(RESTAURANTS_WITH_DISHES_MATCHER.contentJson(ALFA, BETA, OMEGA));
     }
 
     @Test
@@ -131,6 +131,22 @@ class RestaurantsControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
         updated.setId(ALFA_ID);
         RESTAURANT_MATCHER.assertMatch(repository.findOrThrowById(ALFA_ID), updated);
+    }
+
+    @Test
+    @DirtiesContext
+    void updateNoDishes() throws Exception {
+        Restaurant updated = new Restaurant(BETA)
+                .setName("Beta_Modified");
+        updated.setId(null);
+        perform(MockMvcRequestBuilders.put(ADMIN_URL + BETA_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(ADMIN))
+                        .content(JsonUtil.writeValue(updated)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+        updated.setId(BETA_ID);
+        RESTAURANT_MATCHER.assertMatch(repository.findOrThrowById(BETA_ID), updated);
     }
 
     @Test

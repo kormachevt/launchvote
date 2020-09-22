@@ -16,7 +16,7 @@ import java.util.List;
 @Entity
 @Table(name = "restaurants")
 @NamedEntityGraph(name = "Restaurant.dishes",
-                  attributeNodes = @NamedAttributeNode("dishes")
+        attributeNodes = @NamedAttributeNode("dishes")
 )
 @Getter
 @Setter
@@ -26,8 +26,8 @@ import java.util.List;
 public class Restaurant extends AbstractBaseEntity {
 
     @JsonView(value = {View.Restaurants.WithDishes.class})
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant", orphanRemoval = true)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "restaurant", orphanRemoval = true)
     @OrderBy("description ASC")
     private List<Dish> dishes;
 
