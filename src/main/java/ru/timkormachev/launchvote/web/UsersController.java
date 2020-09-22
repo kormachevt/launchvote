@@ -23,7 +23,7 @@ import static ru.timkormachev.launchvote.util.ValidationUtil.*;
 @RestController
 @RequestMapping(UsersController.REST_URL)
 public class UsersController extends AbstractUserController {
-    static final String REST_URL = "/users";
+    static final String REST_URL = "/admin/users";
 
     private final UserRepository repository;
 

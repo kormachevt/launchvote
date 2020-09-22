@@ -23,13 +23,13 @@ import java.net.URI;
 import java.util.List;
 
 import static ru.timkormachev.launchvote.util.ValidationUtil.*;
-import static ru.timkormachev.launchvote.web.RestaurantsController.REST_URL;
 
 @Validated //https://stackoverflow.com/a/32054659, https://stackoverflow.com/a/54394177
 @RestController
-@RequestMapping(REST_URL)
+@RequestMapping()
 public class RestaurantsController {
-    static final String REST_URL = "/restaurants";
+    static final String USERS_URL = "/restaurants";
+    static final String ADMIN_URL = "/admin" + USERS_URL;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -42,35 +42,35 @@ public class RestaurantsController {
         this.dishRepository = dishRepository;
     }
 
-    @GetMapping
+    @GetMapping(USERS_URL)
     @JsonView(value = {View.Restaurants.class})
     public List<Restaurant> getAll() {
         return restaurantRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 
-    @GetMapping("/with-dishes")
+    @GetMapping(USERS_URL + "/with-dishes")
     @JsonView(value = {View.Restaurants.WithDishes.class})
     public List<Restaurant> getAllWithDishes() {
         return restaurantRepository.findRestaurantsWithDishesByOrderByName();
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = ADMIN_URL, consumes = MediaType.APPLICATION_JSON_VALUE)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public ResponseEntity<Restaurant> add(@Valid @RequestBody Restaurant restaurant) {
         checkNew(restaurant);
         Restaurant created = restaurantRepository.save(restaurant);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL + "/{id}")
+                .path(ADMIN_URL + "/{id}")
                 .buildAndExpand(created.getId()).toUri();
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(USERS_URL + "/{id}")
     public Restaurant get(@PathVariable int id) {
         return restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("id=" + id));
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = ADMIN_URL + "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
@@ -80,7 +80,7 @@ public class RestaurantsController {
         restaurantRepository.save(restaurant);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(ADMIN_URL + "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void delete(@PathVariable int id) {
@@ -88,13 +88,13 @@ public class RestaurantsController {
         restaurantRepository.deleteById(id);
     }
 
-    @GetMapping("/{id}/dishes")
+    @GetMapping(USERS_URL + "/{id}/dishes")
     public List<Dish> getDishes(@PathVariable int id) {
         return dishRepository.findAllByRestaurantOrderByDescription(restaurantRepository.getOne(id));
     }
 
     //  https://stackoverflow.com/a/5587892
-    @PutMapping(value = "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = ADMIN_URL + "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void updateDishes(@Valid @RequestBody List<Dish> dishes, @PathVariable int id) {
