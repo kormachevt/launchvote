@@ -53,7 +53,7 @@ P.P.S.: Asume that your API will be used by a frontend developer to build fronte
 `curl --location --request GET 'localhost:8080/restaurants/with-dishes' --header 'Authorization: Basic dXNlckBnbWFpbC5jb206cGFzc3dvcmQ='`
 
 #### update Restaurants dishes
-`curl --location --request PUT 'localhost:8080/restaurants/100002/dishes' --header 'Authorization: Basic YWRtaW5AZ21haWwuY29tOmFkbWlu' --header 'Content-Type: application/json'--data-raw '[
+`curl --location --request PUT 'localhost:8080/admin/restaurants/100002/dishes' --header 'Authorization: Basic YWRtaW5AZ21haWwuY29tOmFkbWlu' --header 'Content-Type: application/json'--data-raw '[
      {
          "description": "New_Alfa_1",
          "price": 300
