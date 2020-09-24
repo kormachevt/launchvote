@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -101,6 +102,7 @@ public class RestaurantsController {
     }
 
     //  https://stackoverflow.com/a/5587892
+    @Transactional
     @PutMapping(value = ADMIN_URL + "/{id}/dishes", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)

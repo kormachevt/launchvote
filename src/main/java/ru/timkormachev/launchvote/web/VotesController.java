@@ -4,11 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.timkormachev.launchvote.model.AuthorizedUser;
-import ru.timkormachev.launchvote.model.Restaurant;
 import ru.timkormachev.launchvote.model.User;
 import ru.timkormachev.launchvote.model.Vote;
 import ru.timkormachev.launchvote.repositories.RestaurantRepository;
@@ -21,12 +24,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static ru.timkormachev.launchvote.util.VotesUtil.calcPercentage;
-import static ru.timkormachev.launchvote.util.VotesUtil.checkVoteTime;
+import static ru.timkormachev.launchvote.util.VotesUtil.isRevoteAllowed;
 import static ru.timkormachev.launchvote.web.VotesController.REST_URL;
 
 @RestController
@@ -38,7 +37,7 @@ public class VotesController {
     private final VoteRepository voteRepository;
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
-    private final LocalTime stopVoteTime;
+    private final LocalTime freezeVoteTime;
     private static final Comparator<ResultTo> BY_PERCENT_THEN_NAME = Comparator.comparing(ResultTo::getPercentage).reversed()
             .thenComparing(ResultTo::getRestaurant);
 
@@ -49,45 +48,43 @@ public class VotesController {
     public VotesController(VoteRepository repository,
                            RestaurantRepository restaurantRepository,
                            UserRepository userRepository,
-                           @Value("${app.stopVoteTime}") String stopVoteTimeProperty, Clock clock) {
+                           @Value("${app.voteFreezeTime}") String freezeVoteTimeProperty, Clock clock) {
         this.voteRepository = repository;
         this.restaurantRepository = restaurantRepository;
         this.userRepository = userRepository;
-        this.stopVoteTime = LocalTime.parse(stopVoteTimeProperty);
+        this.freezeVoteTime = LocalTime.parse(freezeVoteTimeProperty);
         this.clock = clock;
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
+    @ResponseStatus()
+    @Transactional
+    @CacheEvict(value = "voteResults", allEntries = true)
+    public ResponseEntity<Vote> registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
         log.info("user with id {} votes for restaurant with id {}", authorizedUser.getId(), restaurantId);
-        LocalTime now = LocalTime.now(clock);
-        checkVoteTime(stopVoteTime, now);
-        Restaurant restaurant = restaurantRepository.getOne(restaurantId);
         User user = userRepository.getOne(authorizedUser.getId());
         LocalDate date = LocalDate.now();
         Vote oldVote = voteRepository.getByUserAndDate(user, date);
-        Vote vote = oldVote == null ? new Vote() : oldVote;
+
+        boolean isAlreadyVoted = oldVote != null;
+        LocalTime now = LocalTime.now(clock);
+        if (isAlreadyVoted && !isRevoteAllowed(freezeVoteTime, now)) {
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }
+        Vote vote = isAlreadyVoted ? oldVote : new Vote();
+
         vote.setUser(user);
-        vote.setRestaurant(restaurant);
+        vote.setRestaurant(restaurantRepository.getOne(restaurantId));
         vote.setDate(date);
         vote.setTime(now);
         voteRepository.save(vote);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
     @GetMapping
+    @Cacheable("voteResults")
     public List<ResultTo> getResults() {
         log.info("get voting results");
-        List<Vote> votes = voteRepository.findVotesByDate(LocalDate.now());
-        Map<Restaurant, Long> votesMap = votes.stream()
-                .collect(Collectors.groupingBy(Vote::getRestaurant, Collectors.counting()));
-
-        int totalVotes = votes.size();
-        List<Restaurant> restaurants = restaurantRepository.findAll();
-        return restaurants.stream()
-                .map(r -> new ResultTo(r.getName(), calcPercentage(Optional.ofNullable(votesMap.get(r)).orElse(0L),
-                                                                   totalVotes)))
-                .sorted(BY_PERCENT_THEN_NAME)
-                .collect(Collectors.toList());
+        return voteRepository.findResultsByDate(LocalDate.now());
     }
 }

@@ -29,7 +29,7 @@ public class UserTestData {
                 .setLogin("New")
                 .setPassword("newPass")
                 .setEmail("new@gmail.com")
-                .setEnabled(false)
+                .setEnabled(true)
                 .setRoles(Set.of(Role.USER));
     }
 
