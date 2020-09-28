@@ -24,7 +24,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
-import static ru.timkormachev.launchvote.util.ValidationUtil.*;
+import static ru.timkormachev.launchvote.util.ValidationUtil.assureIdConsistent;
+import static ru.timkormachev.launchvote.util.ValidationUtil.checkNew;
 
 @Validated //https://stackoverflow.com/a/32054659, https://stackoverflow.com/a/54394177
 @RestController
@@ -77,7 +78,6 @@ public class RestaurantsController {
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void update(@Valid @RequestBody Restaurant restaurant, @PathVariable int id) {
         assureIdConsistent(restaurant, id);
-        checkModificationAllowed(id);
         List<Dish> dishes = restaurant.getDishes();
 //        https://stackoverflow.com/a/1454871
         if (dishes != null) {
@@ -92,7 +92,6 @@ public class RestaurantsController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @CacheEvict(value = "restaurantsWithDishes", allEntries = true)
     public void delete(@PathVariable int id) {
-        checkModificationAllowed(id);
         restaurantRepository.deleteById(id);
     }
 

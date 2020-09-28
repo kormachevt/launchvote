@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,7 +23,6 @@ import ru.timkormachev.launchvote.to.ResultTo;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 
 import static ru.timkormachev.launchvote.util.VotesUtil.isRevoteAllowed;
@@ -38,8 +38,6 @@ public class VotesController {
     private final RestaurantRepository restaurantRepository;
     private final UserRepository userRepository;
     private final LocalTime freezeVoteTime;
-    private static final Comparator<ResultTo> BY_PERCENT_THEN_NAME = Comparator.comparing(ResultTo::getPercentage).reversed()
-            .thenComparing(ResultTo::getRestaurant);
 
     @Autowired
     private final Clock clock;
@@ -48,11 +46,12 @@ public class VotesController {
     public VotesController(VoteRepository repository,
                            RestaurantRepository restaurantRepository,
                            UserRepository userRepository,
-                           @Value("${app.voteFreezeTime}") String freezeVoteTimeProperty, Clock clock) {
+                           @Value("${app.voteFreezeTime}") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime freezeVoteTime,
+                           Clock clock) {
         this.voteRepository = repository;
         this.restaurantRepository = restaurantRepository;
         this.userRepository = userRepository;
-        this.freezeVoteTime = LocalTime.parse(freezeVoteTimeProperty);
+        this.freezeVoteTime = freezeVoteTime;
         this.clock = clock;
     }
 
@@ -60,7 +59,7 @@ public class VotesController {
     @ResponseStatus()
     @Transactional
     @CacheEvict(value = "voteResults", allEntries = true)
-    public ResponseEntity<Vote> registerVote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
+    public ResponseEntity<Vote> vote(@RequestParam("restaurantId") int restaurantId, @AuthenticationPrincipal AuthorizedUser authorizedUser) {
         log.info("user with id {} votes for restaurant with id {}", authorizedUser.getId(), restaurantId);
         User user = userRepository.getOne(authorizedUser.getId());
         LocalDate date = LocalDate.now();

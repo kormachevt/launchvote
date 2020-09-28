@@ -4,8 +4,6 @@ package ru.timkormachev.launchvote.util;
 import org.slf4j.Logger;
 import ru.timkormachev.launchvote.exception.ErrorType;
 import ru.timkormachev.launchvote.exception.IllegalRequestDataException;
-import ru.timkormachev.launchvote.exception.ModificationRestrictionException;
-import ru.timkormachev.launchvote.model.AbstractBaseEntity;
 import ru.timkormachev.launchvote.model.HasId;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,12 +27,6 @@ public class ValidationUtil {
     public static void checkNew(HasId bean) {
         if (!bean.isNew()) {
             throw new IllegalRequestDataException(bean + " must be new (id=null)");
-        }
-    }
-
-    public static void checkModificationAllowed(int id) {
-        if (id < AbstractBaseEntity.START_SEQ) {
-            throw new ModificationRestrictionException();
         }
     }
 

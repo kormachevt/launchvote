@@ -18,7 +18,8 @@ import java.net.URI;
 import java.util.List;
 
 import static ru.timkormachev.launchvote.util.UserUtils.prepareToSave;
-import static ru.timkormachev.launchvote.util.ValidationUtil.*;
+import static ru.timkormachev.launchvote.util.ValidationUtil.assureIdConsistent;
+import static ru.timkormachev.launchvote.util.ValidationUtil.checkNew;
 
 @RestController
 @RequestMapping(UsersController.REST_URL)
@@ -78,7 +79,6 @@ public class UsersController extends AbstractUserController {
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void enable(@PathVariable int id, @RequestParam boolean enabled) {
         log.info("turn enabled={} for user with id {}", enabled, id);
-        checkModificationAllowed(id);
         User user = repository.getOne(id);
         user.setEnabled(enabled);
         repository.save(user);
@@ -88,7 +88,6 @@ public class UsersController extends AbstractUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
         log.info("delete user with id {}", id);
-        checkModificationAllowed(id);
         repository.deleteById(id);
     }
 }

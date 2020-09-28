@@ -77,7 +77,7 @@ class UsersControllerTest extends AbstractControllerTest {
     void deleteNotFound() throws Exception {
         perform(MockMvcRequestBuilders.delete(REST_URL + 1)
                         .with(userHttpBasic(ADMIN)))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 

@@ -9,7 +9,6 @@ import ru.timkormachev.launchvote.model.HasId;
 import ru.timkormachev.launchvote.util.UniqueMailValidator;
 
 import static ru.timkormachev.launchvote.util.ValidationUtil.assureIdConsistent;
-import static ru.timkormachev.launchvote.util.ValidationUtil.checkModificationAllowed;
 
 public abstract class AbstractUserController {
     protected final Logger log = LoggerFactory.getLogger(getClass());
@@ -34,7 +33,6 @@ public abstract class AbstractUserController {
     protected void checkAndValidateForUpdate(HasId user, int id) throws BindException {
         log.info("update {} with id={}", user, id);
         assureIdConsistent(user, id);
-        checkModificationAllowed(id);
         binder.validate();
         if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
